@@ -263,6 +263,23 @@ window.onload = function() {
 	};
 }
 
+function deleteSelectedObject() {
+	if(selectedObject != null) {
+		for(var i = 0; i < nodes.length; i++) {
+			if(nodes[i] == selectedObject) {
+				nodes.splice(i--, 1);
+			}
+		}
+		for(var i = 0; i < links.length; i++) {
+			if(links[i] == selectedObject || links[i].node == selectedObject || links[i].nodeA == selectedObject || links[i].nodeB == selectedObject) {
+				links.splice(i--, 1);
+			}
+		}
+		selectedObject = null;
+		draw();
+	}
+}
+
 var shift = false;
 
 document.onkeydown = function(e) {
@@ -274,29 +291,20 @@ document.onkeydown = function(e) {
 		// don't read keystrokes when other things have focus
 		return true;
 	} else if(key == 8) { // backspace key
-		if(selectedObject != null && 'text' in selectedObject) {
+		// macs have no dedicated delete key, so backspace also deletes the selected
+		// object when it has no text left (or always when cmd/ctrl is held)
+		if(selectedObject != null && 'text' in selectedObject && selectedObject.text.length > 0 && !e.metaKey && !e.ctrlKey) {
 			selectedObject.text = selectedObject.text.substr(0, selectedObject.text.length - 1);
 			resetCaret();
 			draw();
+		} else {
+			deleteSelectedObject();
 		}
 
 		// backspace is a shortcut for the back button, but do NOT want to change pages
 		return false;
 	} else if(key == 46) { // delete key
-		if(selectedObject != null) {
-			for(var i = 0; i < nodes.length; i++) {
-				if(nodes[i] == selectedObject) {
-					nodes.splice(i--, 1);
-				}
-			}
-			for(var i = 0; i < links.length; i++) {
-				if(links[i] == selectedObject || links[i].node == selectedObject || links[i].nodeA == selectedObject || links[i].nodeB == selectedObject) {
-					links.splice(i--, 1);
-				}
-			}
-			selectedObject = null;
-			draw();
-		}
+		deleteSelectedObject();
 	}
 };
 
